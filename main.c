@@ -10,7 +10,7 @@
 #define DIC_PATH_DEFAULT "dictionaries/fr.txt"
 
 static void printHelp(char** argv);
-static void startConsoleGame();
+static void startConsoleGame(Game* game);
 
 /**
  * read args and running one game with console display
@@ -60,10 +60,10 @@ int main(int argc, char * argv[]) {
   printf("Difficulty is set to %d.\n", level);
   printf("Let's begin the game. Good luck !\n");
   
-  game_init();
-  game_start(dic_getWord(level));
-  startConsoleGame();
-  game_close();
+  Game* game = game_init();
+  game_start(game, dic_getWord(level));
+  startConsoleGame(game);
+  game_close(game);
   dic_close();
   
   return 0;
@@ -79,25 +79,25 @@ void printHelp(char** argv) {
   printf("\n");
 }
 
-void startConsoleGame() {
+void startConsoleGame(Game* game) {
   int status;
   char letter;
-  printf("\nword: %s\n\n", game_getObfuscatedWord());
+  printf("\nword: %s\n\n", game_getObfuscatedWord(game));
   do {
     printf("Give me a letter: ");
     if(scanf("%c", &letter)==1) {
       while(getchar()!='\n'); // clear stdin
-      status = game_giveLetter(letter);
+      status = game_giveLetter(game, letter);
       if(status == -1)
         printf("This is not a letter !\n");
       else if(status==1)
         printf("You have already gived this letter !\n");
       else
-        printf("%d try remaining.\nletters: %s\nword: %s\n\n", game_getRemainingTry(), game_getLetters(), game_getObfuscatedWord());
+        printf("%d try remaining.\nletters: %s\nword: %s\n\n", game_getRemainingTry(game), game_getLetters(game), game_getObfuscatedWord(game));
     }
-  } while((status=game_getStatus())==0);
+  } while((status=game_getStatus(game))==0);
   if(status==-1) {
-    printf("You lose !\nThe word was : %s\n", game_getWord());
+    printf("You lose !\nThe word was : %s\n", game_getWord(game));
   } else if(status==1) {
     printf("You win !\n");
   }
