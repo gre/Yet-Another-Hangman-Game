@@ -10,7 +10,7 @@
 struct _Game {
   int maxTry;
   int nbTry;
-  char letters[26];
+  char letters[27]; // keep one char for '\0'
   const char* word;
   char* obfuscated;
 };
@@ -38,7 +38,7 @@ extern void game_start(Game* game, const char* word) {
   game->word = word;
   game->maxTry = 10;
   game->nbTry = 0;
-  bzero(game->letters, 26*sizeof(char));
+  bzero(game->letters, 27*sizeof(char));
 }
 
 extern int game_getRemainingTry(Game* game) {

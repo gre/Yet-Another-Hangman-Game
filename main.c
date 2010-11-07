@@ -6,11 +6,11 @@
 #include "utils.h"
 #include "pendu.h"
 #include "dictionary.h"
+#include "userinterface.h"
 
 #define DIC_PATH_DEFAULT "dictionaries/fr.txt"
 
 static void printHelp(char** argv);
-static void startConsoleGame(Game* game);
 
 /**
  * read args and running one game with console display
@@ -19,8 +19,9 @@ int main(int argc, char * argv[]) {
   int status;
   int level, levelFallback;
   char * dic_path;
+  char letter;
   
-  /// consume all args ///
+  /// Consume commandline args
   
   // check if --help is requested
   if(util_containsArg(argc, argv, "--help")
@@ -40,11 +41,13 @@ int main(int argc, char * argv[]) {
       level = levelFallback;
     }
   }
+  printf("Difficulty is set to %d.\n", level);
+  
   if(util_getArgString(argc, argv, "--dictionary", &dic_path) != 0
   && util_getArgString(argc, argv, "-d",           &dic_path) != 0)
       dic_path = DIC_PATH_DEFAULT;
   
-  /// Init dictionary
+  /// Init modules
   printf("Loading dictionary %s... ", dic_path);
   fflush(stdout);
   status = dic_init(dic_path);
@@ -57,48 +60,35 @@ int main(int argc, char * argv[]) {
     return -2;
   }
   printf("loaded.\n");
-  printf("Difficulty is set to %d.\n", level);
-  printf("Let's begin the game. Good luck !\n");
   
   Game* game = game_init();
+  ui_init();
+  
+  // Start a new game
   game_start(game, dic_getWord(level));
-  startConsoleGame(game);
+  ui_onGameStart(game);
+  do {
+    if(ui_getChar(&letter)) {
+      status = game_giveLetter(game, letter);
+      ui_onLetterGived(game, letter, status);
+    }
+  } while((status=game_getStatus(game))==0);
+  ui_onGameEnd(game, status);
+  
+  // Close modules
+  ui_close();
   game_close(game);
   dic_close();
   
   return 0;
 }
 
-void printHelp(char** argv) {
+static void printHelp(char** argv) {
   printf("Usage: %s [--dic <path>] [--level <level>]\n", argv[0]);
   printf("\n");
   printf("Options:\n");
   printf("  -l, --level\t\tspecific the level (value between 0 and %d)\n", NB_LEVEL-1);
-  printf("  -d, --dictionary\t\tprovide the dictionary file path\n");
+  printf("  -d, --dictionary\tprovide the dictionary file path\n");
   printf("  -h, --help\t\tdisplay this help\n");
   printf("\n");
-}
-
-void startConsoleGame(Game* game) {
-  int status;
-  char letter;
-  printf("\nword: %s\n\n", game_getObfuscatedWord(game));
-  do {
-    printf("Give me a letter: ");
-    if(scanf("%c", &letter)==1) {
-      while(getchar()!='\n'); // clear stdin
-      status = game_giveLetter(game, letter);
-      if(status == -1)
-        printf("This is not a letter !\n");
-      else if(status==1)
-        printf("You have already gived this letter !\n");
-      else
-        printf("%d try remaining.\nletters: %s\nword: %s\n\n", game_getRemainingTry(game), game_getLetters(game), game_getObfuscatedWord(game));
-    }
-  } while((status=game_getStatus(game))==0);
-  if(status==-1) {
-    printf("You lose !\nThe word was : %s\n", game_getWord(game));
-  } else if(status==1) {
-    printf("You win !\n");
-  }
 }

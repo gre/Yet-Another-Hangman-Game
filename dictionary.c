@@ -46,7 +46,6 @@ extern int dic_init(char* dic_path) {
   FILE* dicFile = fopen(dic_path, "r");
   if(!dicFile) return -1;
   Word* words = calloc(DIC_ALLOC_WINDOW, sizeof(Word));
-  // word = malloc(sizeof(char)*LINE_MAX_LENGTH);
   while(fgets(word, LINE_MAX_LENGTH, dicFile)) {
     wordTrim = str_trim(word);
     wordLen = strlen(wordTrim);

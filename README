@@ -1,0 +1,13 @@
+
+author: Gaetan Renaudeau <pro@grenlibre.fr>
+licence: GNU GPL version 3 http://www.gnu.org/licenses/gpl.html
+context: University project @ ENSIIE
+
+
+Versions:
+
+  * v1.1 : second release with curses GUI
+    - Added the possibility to have multiple instance of Game
+  
+  * v1.0 : first release
+    - nov 2010 : finished game in text mode only
