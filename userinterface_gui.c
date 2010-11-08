@@ -16,7 +16,7 @@
 
 #define TITLE_TOP (MAINWIN_PADDING_TOP)
 #define PENDU_TOP (TITLE_TOP+2)
-#define PENDU_HEIGHT 9
+#define PENDU_HEIGHT 8
 #define WORD_LEFT (MAINWIN_PADDING_LEFT+20)
 #define WORD_TOP (PENDU_TOP+3)
 #define LETTERS_TOP (WORD_TOP+2)
@@ -86,9 +86,9 @@ static void drawErrorMessage(char* message) {
 // Curses init
 extern void ui_init(Game* game) {
   mainwin = initscr();
-  cbreak();
-  keypad(stdscr, TRUE);
   noecho();
+  cbreak();
+  keypad(mainwin, TRUE);
   curs_set(0);
   start_color();
   init_pair(MYCOLOR_BACKGROUND, COLOR_BLACK, COLOR_WHITE);
@@ -110,7 +110,7 @@ extern void ui_onGameStart(Game* game) {
   drawPendu(game_getRemainingTry(game));
   drawWord(game_getObfuscatedWord(game));
   drawLetters(game_getLetters(game));
-  drawInfoMessage("");
+  drawInfoMessage("Give me a letter... ");
   refresh();
 }
 extern void ui_onLetterGived(Game* game, char letter, int status) {
@@ -135,9 +135,9 @@ extern void ui_onGameEnd(Game* game, int status) {
   else if(status==1)
     drawInfoMessage("You win !");
   refresh();
-  sleep(1);
+  napms(500);
   setColor(MYCOLOR_DEFAULT);
-  drawMessageAtLine("Press any key to quit.", MESSAGE_TOP+2);
+  drawMessageAtLine("Press any key to quit... ", MESSAGE_TOP+2);
   refresh();
   getch();
 }
